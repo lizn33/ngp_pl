@@ -18,8 +18,6 @@ def get_opts():
     # model parameters
     parser.add_argument('--scale', type=float, default=0.5,
                         help='scene scale (whole scene must lie in [-scale, scale]^3')
-    parser.add_argument('--use_exposure', action='store_true', default=False,
-                        help='whether to train in HDR-NeRF setting')
 
     # loss parameters
     parser.add_argument('--distortion_loss_w', type=float, default=0,

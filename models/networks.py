@@ -76,21 +76,6 @@ class NGP(nn.Module):
                 }
             )
 
-        if self.rgb_act == 'None': # rgb_net output is log-radiance
-            for i in range(3): # independent tonemappers for r,g,b
-                tonemapper_net = \
-                    tcnn.Network(
-                        n_input_dims=1, n_output_dims=1,
-                        network_config={
-                            "otype": "FullyFusedMLP",
-                            "activation": "ReLU",
-                            "output_activation": "Sigmoid",
-                            "n_neurons": 64,
-                            "n_hidden_layers": 1,
-                        }
-                    )
-                setattr(self, f'tonemapper_net_{i}', tonemapper_net)
-
     def density(self, x, return_feat=False):
         """
         Inputs:

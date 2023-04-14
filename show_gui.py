@@ -54,7 +54,7 @@ class OrbitCamera:
 class NGPGUI:
     def __init__(self, hparams, K, img_wh, radius=2.5):
         self.hparams = hparams
-        rgb_act = 'None' if self.hparams.use_exposure else 'Sigmoid'
+        rgb_act = 'Sigmoid'
         self.model = NGP(scale=hparams.scale, rgb_act=rgb_act).cuda()
         load_ckpt(self.model, hparams.ckpt_path)
 

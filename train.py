@@ -67,7 +67,7 @@ class NeRFSystem(LightningModule):
             for p in self.val_lpips.net.parameters():
                 p.requires_grad = False
 
-        rgb_act = 'None' if self.hparams.use_exposure else 'Sigmoid'
+        rgb_act = 'Sigmoid'
         self.model = NGP(scale=self.hparams.scale, rgb_act=rgb_act)
         G = self.model.grid_size
         self.model.register_buffer('density_grid',
@@ -94,8 +94,6 @@ class NeRFSystem(LightningModule):
                   'random_bg': self.hparams.random_bg}
         if self.hparams.scale > 0.5:
             kwargs['exp_step_factor'] = 1/256
-        if self.hparams.use_exposure:
-            kwargs['exposure'] = batch['exposure']
 
         return render(self.model, rays_o, rays_d, **kwargs)
 
@@ -164,12 +162,6 @@ class NeRFSystem(LightningModule):
 
         results = self(batch, split='train')
         loss_d = self.loss(results, batch)
-        if self.hparams.use_exposure:
-            zero_radiance = torch.zeros(1, 3, device=self.device)
-            unit_exposure_rgb = self.model.log_radiance_to_rgb(zero_radiance,
-                                    **{'exposure': torch.ones(1, 1, device=self.device)})
-            loss_d['unit_exposure'] = \
-                0.5*(unit_exposure_rgb-self.train_dataset.unit_exposure_rgb)**2
         loss = sum(lo.mean() for lo in loss_d.values())
 
         with torch.no_grad():
@@ -281,13 +273,3 @@ if __name__ == '__main__':
                       save_poses=hparams.optimize_ext)
         torch.save(ckpt_, f'ckpts/{hparams.dataset_name}/{hparams.exp_name}/epoch={hparams.num_epochs-1}_slim.ckpt')
 
-    if (not hparams.no_save_test) and \
-       hparams.dataset_name=='nsvf' and \
-       'Synthetic' in hparams.root_dir: # save video
-        imgs = sorted(glob.glob(os.path.join(system.val_dir, '*.png')))
-        imageio.mimsave(os.path.join(system.val_dir, 'rgb.mp4'),
-                        [imageio.imread(img) for img in imgs[::2]],
-                        fps=30, macro_block_size=1)
-        imageio.mimsave(os.path.join(system.val_dir, 'depth.mp4'),
-                        [imageio.imread(img) for img in imgs[1::2]],
-                        fps=30, macro_block_size=1)
