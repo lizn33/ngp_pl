@@ -22,6 +22,7 @@ class NGP(nn.Module):
         self.register_buffer('xyz_max', torch.ones(1, 3)*scale)
         self.register_buffer('half_size', (self.xyz_max-self.xyz_min)/2)
 
+        # cascade是occupancy的个数
         # each density grid covers [-2^(k-1), 2^(k-1)]^3 for k in [0, C-1]
         self.cascades = max(1+int(np.ceil(np.log2(2*scale))), 1)
         self.grid_size = 128
@@ -29,6 +30,7 @@ class NGP(nn.Module):
             torch.zeros(self.cascades*self.grid_size**3//8, dtype=torch.uint8))
 
         # constants
+        # L = 16; F = 2; log2_T = 19; N_min = 16
         L = 16; F = 2; log2_T = 19; N_min = 16
         b = np.exp(np.log(2048*scale/N_min)/(L-1))
         print(f'GridEncoding: Nmin={N_min} b={b:.5f} F={F} T=2^{log2_T} L={L}')
@@ -151,6 +153,7 @@ class NGP(nn.Module):
 
         return cells
 
+    # 执行regular
     @torch.no_grad()
     def sample_uniform_and_occupied_cells(self, M, density_threshold):
         """
@@ -222,6 +225,7 @@ class NGP(nn.Module):
                 self.density_grid[c, indices[i:i+chunk]] = \
                     torch.where(valid_mask, 0., -1.)
 
+    # 更新01值
     @torch.no_grad()
     def update_density_grid(self, density_threshold, warmup=False, decay=0.95, erode=False):
         density_grid_tmp = torch.zeros_like(self.density_grid)

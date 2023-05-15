@@ -170,8 +170,6 @@ class NGPGUI:
 
         ## Launch the gui ##
         dpg.setup_dearpygui()
-        dpg.set_viewport_small_icon("assets/icon.png")
-        dpg.set_viewport_large_icon("assets/icon.png")
         dpg.show_viewport()
 
     def render(self):

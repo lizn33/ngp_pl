@@ -14,6 +14,7 @@ class BaseDataset(Dataset):
     def read_intrinsics(self):
         raise NotImplementedError
 
+    # 返回一个epoch有多少个（默认1000）batch
     def __len__(self):
         if self.split.startswith('train'):
             return 1000
@@ -22,6 +23,7 @@ class BaseDataset(Dataset):
     def __getitem__(self, idx):
         if self.split.startswith('train'):
             # training pose is retrieved in train.py
+            # batch中的射线来自同一张图片, 还是从所有加载的图片中选择一次batch的射线
             if self.ray_sampling_strategy == 'all_images': # randomly select images
                 img_idxs = np.random.choice(len(self.poses), self.batch_size)
             elif self.ray_sampling_strategy == 'same_image': # randomly select ONE image
