@@ -1,0 +1,1 @@
+python train.py --root_dir dataset/fortress/ --scale 8.0 --num_epochs 20 --lr 2e-2 --exp_name fortress_s_8

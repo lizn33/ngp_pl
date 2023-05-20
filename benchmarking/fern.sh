@@ -1,0 +1,1 @@
+python train.py --root_dir dataset/fern/ --scale 4.0 --num_epochs 20 --lr 2e-2 --exp_name fern_s_4
